@@ -108,6 +108,18 @@ PORT3,     -PORT4,
 int current_auton_selection = 0;
 bool auto_started = false;
 
+float smooth_drive(int axis_pos, int deadband = 5)
+{
+  if(abs(axis_pos) < deadband)
+  {
+    return 0;
+  }
+  else
+  {
+    return 0.00000533333f * (axis_pos * axis_pos * axis_pos) + 0.0666667f * axis_pos;
+  }
+}
+
 /**
  * Function before autonomous. It prints the current auton number on the screen
  * and tapping the screen cycles the selected auton by 1. Add anything else you
@@ -213,22 +225,45 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
-    if (Controller.ButtonUp.presssing())
-    // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-    // ........................................................................
+  controller Controller = controller();
 
-    //Replace this line with chassis.control_tank(); for tank drive 
-    //or chassis.control_holonomic(); for holo drive.
+  LeftMotor.setStopping(coast);
+  RightMotor.setStopping(coast);  
+
+  while (1) {
+    // Controls forward and backward movement using smooth drive function 
+    if (smooth_drive(Controller.Axis2.position() == 0))
+    {
+      LeftMotor.stop();
+      RightMotor.stop();
+    }
+    else
+    {
+      LeftMotor.spin(fwd, smooth_drive(Controller.Axis2.position()), volt);
+      RightMotor.spin(fwd, smooth_drive(Controller.Axis2.position()), volt);
+    }
+
+
+    // Controls left and right movement using smooth drive function
+    if (smooth_drive(Controller.Axis4.position() == 0))
+    {
+      LeftMotor.stop();
+      RightMotor.stop();
+    }
+    else
+    {
+      LeftMotor.spin(fwd, smooth_drive(Controller.Axis4.position()), volt);
+      RightMotor.spin(reverse, smooth_drive(Controller.Axis4.position()), volt);
+    }
+
+
+
+    
+    if (Controller.ButtonUp.pressing())
+
     chassis.control_arcade();
 
-    wait(20, msec); // Sleep the task for a short amount of time to
-                    // prevent wasted resources.
+    wait(20, msec); // Sleep the task for a short amount of time to prevent wasted resources.
   }
 }
 

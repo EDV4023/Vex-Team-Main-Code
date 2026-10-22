@@ -8,8 +8,8 @@ extern brain Brain;
 //Add your devices below, and don't forget to do the same in robot-config.cpp:
 extern motor LeftMotor;
 extern motor RightMotor;
-extern motor armMotor;
-extern motor clawMotor;
+extern motor ArmMotor;
+extern motor ClawMotor;
 
 
 void  vexcodeInit( void );

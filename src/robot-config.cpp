@@ -13,8 +13,8 @@ brain  Brain;
 //Add your devices below, and don't forget to do the same in robot-config.h:
 motor LeftMotor = motor(PORT10, ratio18_1, false);
 motor RightMotor = motor(PORT5, ratio18_1, true);
-motor armMotor = motor(PORT3, ratio18_1, false);
-motor clawMotor = motor(PORT4, ratio18_1, false);
+motor ArmMotor = motor(PORT3, ratio18_1, false);
+motor ClawMotor = motor(PORT4, ratio18_1, false);
 
 void vexcodeInit( void ) {
   // nothing to initialize
