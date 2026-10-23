@@ -116,7 +116,7 @@ float smooth_drive(int axis_pos, int deadband = 5)
   }
   else
   {
-    return 0.00000533333f * (axis_pos * axis_pos * axis_pos) + 0.0666667f * axis_pos;
+    return (static_cast<float>(axis_pos) /100) * 12;
   }
 }
 
@@ -224,45 +224,47 @@ void autonomous(void) {
 /*---------------------------------------------------------------------------*/
 
 void usercontrol(void) {
-  // User control code here, inside the loop
+  // Create controller object for button bindings
   controller Controller = controller();
 
+  // Keep motors stopping mode to a slow coast instead of a brake to prevent jolting
   LeftMotor.setStopping(coast);
   RightMotor.setStopping(coast);  
 
   while (1) {
-    // Controls forward and backward movement using smooth drive function 
-    if (smooth_drive(Controller.Axis2.position() == 0))
-    {
-      LeftMotor.stop();
-      RightMotor.stop();
-    }
-    else
-    {
-      LeftMotor.spin(fwd, smooth_drive(Controller.Axis2.position()), volt);
-      RightMotor.spin(fwd, smooth_drive(Controller.Axis2.position()), volt);
-    }
-
-
-    // Controls left and right movement using smooth drive function
-    if (smooth_drive(Controller.Axis4.position() == 0))
-    {
-      LeftMotor.stop();
-      RightMotor.stop();
-    }
-    else
-    {
-      LeftMotor.spin(fwd, smooth_drive(Controller.Axis4.position()), volt);
-      RightMotor.spin(reverse, smooth_drive(Controller.Axis4.position()), volt);
-    }
-
-
-
-    
-    if (Controller.ButtonUp.pressing())
-
+    // Controls forward and backward movement using inbuilt arcade drive function.
     chassis.control_arcade();
 
+    // When up/down button is pressed raise/lower arm
+    if (Controller.ButtonUp.pressing())
+    {
+      ArmMotor.spin(reverse, 12, volt);
+    }
+    else if (Controller.ButtonDown.pressing())
+    {
+      ArmMotor.spin(fwd, 12, volt);
+    }
+    else
+    {
+      ArmMotor.stop();
+    }
+
+
+
+    // Assing Left and Right buttons to claw intake control
+    if (Controller.ButtonLeft.pressing())
+    {
+      ClawMotor.spin(fwd, 12, volt);
+    }
+    else if (Controller.ButtonRight.pressing())
+    {
+      ClawMotor.spin(reverse, 12, volt);
+    }
+    else
+    {
+      ClawMotor.stop();
+    }
+    
     wait(20, msec); // Sleep the task for a short amount of time to prevent wasted resources.
   }
 }
